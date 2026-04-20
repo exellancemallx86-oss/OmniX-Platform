@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>OmniX.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- PostgreSQL -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"         Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore"                  Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"       Version="8.0.8" />
+
+    <!-- Redis -->
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.8" />
+    <PackageReference Include="StackExchange.Redis"                            Version="2.7.33" />
+
+    <!-- Health Checks -->
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql"                Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis"                 Version="8.0.1" />
+
+    <!-- Security -->
+    <PackageReference Include="BCrypt.Net-Next"                               Version="4.0.3" />
+    <PackageReference Include="OtpNet"                                        Version="1.4.0" />
+
+    <!-- Logging -->
+    <PackageReference Include="Serilog"                                       Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OmniX.Application/OmniX.Application.csproj" />
+    <ProjectReference Include="../OmniX.Domain/OmniX.Domain.csproj" />
+  </ItemGroup>
+</Project>
