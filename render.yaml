@@ -1,0 +1,104 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  OmniX Platform — render.yaml (Blueprint)
+#  يرفع: Backend API + Frontend + PostgreSQL + Redis
+#  الاستخدام: ارفع على GitHub ← Render → New → Blueprint
+# ═══════════════════════════════════════════════════════════════════════════
+
+databases:
+  - name: omnix-db
+    databaseName: omnixplatform
+    user: omnix
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: 16
+
+services:
+  # ─── Redis ─────────────────────────────────────────────────────────────
+  - type: redis
+    name: omnix-redis
+    plan: free
+    region: frankfurt
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  # ─── Backend API ────────────────────────────────────────────────────────
+  - type: web
+    name: omnix-api
+    runtime: docker
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile.render
+    healthCheckPath: /health
+
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: PORT
+        value: "10000"
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: omnix-db
+          property: connectionString
+
+      - key: ConnectionStrings__Redis
+        fromService:
+          name: omnix-redis
+          type: redis
+          property: connectionString
+
+      - key: Jwt__Secret
+        generateValue: true
+      - key: Jwt__Issuer
+        value: OmniX
+      - key: Jwt__Audience
+        value: OmniXClient
+      - key: Jwt__ExpiryMinutes
+        value: "60"
+
+      - key: AllowedOrigins__0
+        value: https://omnix-frontend.onrender.com
+
+      # Paymob — عدّل من Render Dashboard
+      - key: Paymob__ApiKey
+        value: CHANGE_ME
+      - key: Paymob__IntegrationId
+        value: CHANGE_ME
+      - key: Paymob__IframeId
+        value: CHANGE_ME
+      - key: Paymob__HmacSecret
+        value: CHANGE_ME
+      - key: Paymob__BaseUrl
+        value: https://accept.paymob.com/api
+
+      # Firebase — عدّل من Render Dashboard
+      - key: Firebase__ServerKey
+        value: CHANGE_ME
+      - key: Firebase__ProjectId
+        value: CHANGE_ME
+      - key: Firebase__SenderId
+        value: CHANGE_ME
+
+      # Anthropic Claude AI
+      - key: Anthropic__ApiKey
+        value: CHANGE_ME
+      - key: Anthropic__Model
+        value: claude-sonnet-4-5
+
+  # ─── Frontend ───────────────────────────────────────────────────────────
+  - type: web
+    name: omnix-frontend
+    runtime: docker
+    region: frankfurt
+    plan: free
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile.render
+
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://omnix-api.onrender.com/api
+      - key: NEXT_PUBLIC_SIGNALR_URL
+        value: https://omnix-api.onrender.com
