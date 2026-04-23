@@ -12,8 +12,8 @@ RUN apk add --no-cache libc6-compat
 
 # Copy package files and install production + dev dependencies
 # (dev deps are needed for the build step)
-COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm ci --prefer-offline
+COPY frontend/package.json ./
+RUN npm install
 
 # ── Stage 2: Build ────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
