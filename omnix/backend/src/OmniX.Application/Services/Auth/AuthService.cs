@@ -132,8 +132,8 @@ public class TotpService : ITotpService
         if (string.IsNullOrWhiteSpace(secret) || string.IsNullOrWhiteSpace(code)) return false;
         try
         {
-            var totp = new OtpNet.Totp(Base32Decode(secret));
-            return totp.VerifyTotp(code, out _, new OtpNet.VerificationWindow(1, 1));
+            var totp = new OtpSharp.Totp(Base32Decode(secret));
+            return totp.VerifyTotp(code, out _, new OtpSharp.VerificationWindow(1, 1));
         }
         catch { return false; }
     }
