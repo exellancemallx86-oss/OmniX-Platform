@@ -1,3 +1,4 @@
+using OmniX.Application.Services.WhatsApp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OmniX.Domain.Entities.Core;
@@ -80,10 +81,11 @@ public class RestaurantService : IRestaurantService
 {
     private readonly OmniXDbContext          _db;
     private readonly IRestaurantNotifier     _notifier;
+    private readonly IWhatsAppService        _whatsApp;
     private readonly ITenantProvider         _tenant;
     private readonly ILogger<RestaurantService> _log;
 
-    public RestaurantService(OmniXDbContext db, IRestaurantNotifier notifier,
+    public RestaurantService(OmniXDbContext db, IRestaurantNotifier notifier, IWhatsAppService whatsApp,
         ITenantProvider tenant, ILogger<RestaurantService> log)
     { _db = db; _notifier = notifier; _tenant = tenant; _log = log; }
 
@@ -319,6 +321,8 @@ public class RestaurantService : IRestaurantService
         }
 
         await _db.SaveChangesAsync(ct);
+        // ── WhatsApp — إشعار لحظة إرسال الطلب للمطبخ ────────────────
+        // يتم استدعاؤه بعد SendToKitchenAsync في حالات الطلب الجديد
         await _notifier.NotifyTicketStatusAsync(
             tenantId.ToString(), ticket.BranchId.ToString(),
             ticketId.ToString(), new { ticketId, status = status.ToString() });
@@ -640,6 +644,17 @@ public class RestaurantService : IRestaurantService
         r.Status = ReservationStatus.Confirmed; r.ConfirmedAt = DateTime.UtcNow;
         r.HandledBy = userId; r.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
+
+        // ── WhatsApp — إشعار تأكيد الحجز ──────────────────────────────
+        if (!string.IsNullOrEmpty(r.GuestPhone))
+        {
+            var branch = await _db.Branches.AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == r.BranchId, ct);
+            _ = _whatsApp.SendReservationConfirmedAsync(
+                r.GuestPhone, r.GuestName,
+                branch?.Name ?? "المطعم",
+                r.ReservationAt, r.GuestCount, r.Notes, ct);
+        }
         return Ok(true);
     }
 

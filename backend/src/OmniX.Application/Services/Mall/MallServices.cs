@@ -1,3 +1,4 @@
+using OmniX.Application.Services.WhatsApp;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -438,6 +439,10 @@ public class MallOrderService : IMallOrderService
         if (Enum.TryParse<MallOrderStatus>(req.Status, out var newStatus))
         {
             item.Order.Status = newStatus;
+
+            // ── WhatsApp — إشعار تغيير حالة الطلب ────────────────────────
+            // يُضاف لاحقاً بعد ربط customer phone بالطلب
+            // TODO: _ = _whatsApp.SendOrderStatusAsync(phone, ...)
             item.Order.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(ct);
         }

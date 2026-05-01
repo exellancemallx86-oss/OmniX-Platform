@@ -1,3 +1,4 @@
+using OmniX.Application.Services.WhatsApp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +101,7 @@ try
     // Mall (من MallX)
     builder.Services.AddScoped<IMallService,         MallService>();
     builder.Services.AddScoped<IMallOrderService,    MallOrderService>();
+    builder.Services.AddScoped<ICartService,         CartService>();
     builder.Services.AddScoped<ILoyaltyService,      LoyaltyService>();
     builder.Services.AddScoped<IWalletService,       WalletService>();
     builder.Services.AddScoped<IPaymobService,       PaymobService>();
@@ -111,6 +113,7 @@ try
 
     // AI (من MallX + Pro)
     builder.Services.AddScoped<IAIService,           AnthropicAIService>();
+    builder.Services.AddScoped<IWhatsAppService,     WhatsAppService>();
 
     // Audit (من Ultra)
     builder.Services.AddScoped<IAuditService,        AuditService>();
@@ -121,6 +124,7 @@ try
     // ── HTTP Clients ─────────────────────────────────────────────────────
     builder.Services.AddHttpClient("Paymob",    c => c.BaseAddress = new Uri(cfg["Paymob:BaseUrl"] ?? "https://accept.paymob.com/api"));
     builder.Services.AddHttpClient("Firebase",  c => c.BaseAddress = new Uri("https://fcm.googleapis.com"));
+    builder.Services.AddHttpClient("WhatsApp");
     builder.Services.AddHttpClient("Anthropic", c => { c.BaseAddress = new Uri("https://api.anthropic.com"); c.Timeout = TimeSpan.FromSeconds(60); });
 
     // ── Background Jobs ───────────────────────────────────────────────────

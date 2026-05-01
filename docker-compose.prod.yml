@@ -1,0 +1,37 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  OmniX — docker-compose.prod.yml
+#  يُستخدم فوق docker-compose.yml في الإنتاج:
+#  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ═══════════════════════════════════════════════════════════════════════════
+services:
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Serilog__MinimumLevel__Default: Warning
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  nginx:
+    profiles: []   # تفعيل Nginx في الإنتاج
+
+  pgadmin:
+    profiles:
+      - dev-tools  # يبقى معطلاً في الإنتاج
